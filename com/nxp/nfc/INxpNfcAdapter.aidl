@@ -15,7 +15,7 @@
   */
 package com.nxp.nfc;
 
-
+import com.nxp.nfc.gsma.internal.INxpNfcController;
 import com.nxp.nfc.INxpNfcAdapterExtras;
 
 /**
@@ -23,6 +23,7 @@ import com.nxp.nfc.INxpNfcAdapterExtras;
  */
 interface INxpNfcAdapter
 {
-
+    INxpNfcController getNxpNfcControllerInterface();
+    int[] getActiveSecureElementList(String pkg);
     INxpNfcAdapterExtras getNxpNfcAdapterExtrasInterface();
 }

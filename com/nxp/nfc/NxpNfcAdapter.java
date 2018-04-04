@@ -30,6 +30,7 @@ import android.os.ServiceManager;
 import java.io.IOException;
 import android.os.UserHandle;
 import android.os.RemoteException;
+import com.nxp.nfc.gsma.internal.INxpNfcController;
 
 import android.util.Log;
 
@@ -154,5 +155,64 @@ public final class NxpNfcAdapter {
             return null;
         }
     }
-   
+
+   /**
+    * Get the handle to an INxpNfcController Interface
+    * @hide
+    */
+    public INxpNfcController getNxpNfcControllerInterface() {
+        if(sService == null) {
+            throw new UnsupportedOperationException("You need a reference from NfcAdapter to use the "
+                    + " NXP NFC APIs");
+        }
+        try {
+            return sNxpService.getNxpNfcControllerInterface();
+        }catch(RemoteException e) {
+            return null;
+        }
+    }
+     /**
+     * Get the Active Secure Element List
+     * <p>Requires {@link android.Manifest.permission#NFC} permission.
+     *
+     * @throws IOException If a failure occurred during the getActiveSecureElementList()
+     */
+    public String[] getActiveSecureElementList(String pkg) throws IOException {
+        int [] activeSEList;
+        String [] arr;
+        try{
+            Log.d(TAG, "getActiveSecureElementList-Enter");
+            activeSEList = sNxpService.getActiveSecureElementList(pkg);
+            if (activeSEList!=null && activeSEList.length != 0)
+            {
+                arr= new String[activeSEList.length];
+                for(int i=0;i<activeSEList.length;i++)
+                {
+                    Log.e(TAG, "getActiveSecureElementList activeSE[i]" + activeSEList[i]);
+                    if(activeSEList[i]==NxpConstants.SMART_MX_ID_TYPE)
+                    {
+                        arr[i]= NxpConstants.SMART_MX_ID;
+                    }
+                    else if(activeSEList[i]==NxpConstants.UICC_ID_TYPE)
+                    {
+                        arr[i]= NxpConstants.UICC_ID;
+                    }
+                    else if(activeSEList[i]==NxpConstants.UICC2_ID_TYPE)
+                    {
+                        arr[i]= NxpConstants.UICC2_ID;
+                    }
+                    else {
+                        throw new IOException("No Secure Element Activeted");
+                    }
+                }
+            } else {
+                arr = new String[0];
+            }
+            return arr;
+        } catch (RemoteException e) {
+            Log.e(TAG, "getActiveSecureElementList: failed", e);
+            attemptDeadServiceRecovery(e);
+            throw new IOException("Failure in deselecting the selected Secure Element");
+        }
+    }   
 }
