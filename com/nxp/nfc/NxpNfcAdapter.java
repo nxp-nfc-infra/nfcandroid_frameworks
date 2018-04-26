@@ -156,6 +156,98 @@ public final class NxpNfcAdapter {
         }
     }
 
+
+   /**
+     * This is the first API to be called to start or stop the mPOS mode
+     * <p>Requires {@link android.Manifest.permission#NFC} permission.
+     * <li>This api shall be called only Nfcservice is enabled.
+     * <li>This api shall be called only when there are no NFC transactions ongoing
+     * </ul>
+     * @param  pkg package name of the caller
+     * @param  on Sets/Resets the mPOS state.
+     * @return whether the update of state is
+     *          success or busy or fail.
+     *          MPOS_STATUS_BUSY
+     *          MPOS_STATUS_REJECTED
+     *          MPOS_STATUS_SUCCESS
+     * @throws IOException If a failure occurred during reader mode set or reset
+     */
+    public int mPOSSetReaderMode (String pkg, boolean on) throws IOException {
+        try {
+            return sNxpService.mPOSSetReaderMode(pkg, on);
+        } catch(RemoteException e) {
+            Log.e(TAG, "RemoteException in mPOSSetReaderMode (int state): ", e);
+            e.printStackTrace();
+            attemptDeadServiceRecovery(e);
+            throw new IOException("RemoteException in mPOSSetReaderMode (int state)");
+        }
+    }
+
+    /**
+     * This is provides the info whether mPOS mode is activated or not
+     * <p>Requires {@link android.Manifest.permission#NFC} permission.
+     * <li>This api shall be called only Nfcservice is enabled.
+     * <li>This api shall be called only when there are no NFC transactions ongoing
+     * </ul>
+     * @param  pkg package name of the caller
+     * @return TRUE if reader mode is started
+     *          FALSE if reader mode is not started
+     * @throws IOException If a failure occurred during reader mode set or reset
+     */
+    public boolean mPOSGetReaderMode (String pkg) throws IOException {
+        try {
+            return sNxpService.mPOSGetReaderMode(pkg);
+        } catch(RemoteException e) {
+            Log.e(TAG, "RemoteException in mPOSGetReaderMode (): ", e);
+            e.printStackTrace();
+            attemptDeadServiceRecovery(e);
+            throw new IOException("RemoteException in mPOSSetReaderMode ()");
+        }
+    }
+
+    /**
+     * This API is called by application to stop RF discovery
+     * <p>Requires {@link android.Manifest.permission#NFC} permission.
+     * <li>This api shall be called only Nfcservice is enabled.
+     * </ul>
+     * @param  pkg package name of the caller
+     * @param  mode
+     *         LOW_POWER
+     *         ULTRA_LOW_POWER
+     * @return None
+     * @throws IOException If a failure occurred during stop discovery
+    */
+    public void stopPoll(String pkg, int mode) throws IOException {
+        try {
+            sNxpService.stopPoll(pkg, mode);
+        } catch(RemoteException e) {
+            Log.e(TAG, "RemoteException in stopPoll(int mode): ", e);
+            e.printStackTrace();
+            attemptDeadServiceRecovery(e);
+            throw new IOException("RemoteException in stopPoll(int mode)");
+        }
+    }
+
+    /**
+     * This API is called by application to start RF discovery
+     * <p>Requires {@link android.Manifest.permission#NFC} permission.
+     * <li>This api shall be called only Nfcservice is enabled.
+     * </ul>
+     * @param  pkg package name of the caller
+     * @return None
+     * @throws IOException If a failure occurred during start discovery
+    */
+    public void startPoll(String pkg) throws IOException {
+        try {
+            sNxpService.startPoll(pkg);
+        } catch(RemoteException e) {
+            Log.e(TAG, "RemoteException in startPoll(): ", e);
+            e.printStackTrace();
+            attemptDeadServiceRecovery(e);
+            throw new IOException("RemoteException in startPoll()");
+        }
+    }
+
    /**
     * Get the handle to an INxpNfcController Interface
     * @hide
