@@ -31,27 +31,27 @@ import java.lang.reflect.Field;
 /**
  * @hide
  */
-public final class NxpAidGroup extends AidGroup implements Parcelable {
+public final class NfcAidGroup extends AidGroup implements Parcelable {
 
-    static final String TAG = "NxpAidGroup";
+    static final String TAG = "NfcAidGroup";
     /**
      * Mapping from category to static APDU pattern group
      */
 
-    public NxpAidGroup(List<String> aids, String category, String description) {
+    public NfcAidGroup(List<String> aids, String category, String description) {
         super(aids, category);
         this.description = description;
     }
 
-    public NxpAidGroup(List<String> aids, String category) {
+    public NfcAidGroup(List<String> aids, String category) {
         super(aids, category);
     }
 
-    public NxpAidGroup(String category, String description) {
+    public NfcAidGroup(String category, String description) {
         super(category,description);
     }
 
-    public NxpAidGroup(AidGroup aid) {
+    public NfcAidGroup(AidGroup aid) {
         this(aid.getAids(), aid.getCategory(), getDescription(aid));
     }
 
@@ -91,11 +91,11 @@ public final class NxpAidGroup extends AidGroup implements Parcelable {
         }
     }
 
-    public static final Parcelable.Creator<NxpAidGroup> CREATOR =
-            new Parcelable.Creator<NxpAidGroup>() {
+    public static final Parcelable.Creator<NfcAidGroup> CREATOR =
+            new Parcelable.Creator<NfcAidGroup>() {
 
         @Override
-        public NxpAidGroup createFromParcel(Parcel source) {
+        public NfcAidGroup createFromParcel(Parcel source) {
             String category = source.readString();
             int listSize = source.readInt();
             ArrayList<String> aidList = new ArrayList<String>();
@@ -103,20 +103,20 @@ public final class NxpAidGroup extends AidGroup implements Parcelable {
                 source.readStringList(aidList);
             }
             String description = source.readString();
-            return new NxpAidGroup(aidList, category, description);
+            return new NfcAidGroup(aidList, category, description);
         }
 
         @Override
-        public NxpAidGroup[] newArray(int size) {
-            return new NxpAidGroup[size];
+        public NfcAidGroup[] newArray(int size) {
+            return new NfcAidGroup[size];
         }
     };
 
-    static public NxpAidGroup createFromXml(XmlPullParser parser) throws XmlPullParserException, IOException {
+    static public NfcAidGroup createFromXml(XmlPullParser parser) throws XmlPullParserException, IOException {
         String category = null;
         String description = null;
         ArrayList<String> aids = new ArrayList<String>();
-        NxpAidGroup group = null;
+        NfcAidGroup group = null;
         boolean inGroup = false;
 
         int eventType = parser.getEventType();
@@ -147,10 +147,10 @@ public final class NxpAidGroup extends AidGroup implements Parcelable {
             } else if (eventType == XmlPullParser.END_TAG) {
                 if (tagName.equals("aid-group") && inGroup) {
                     if(aids.size() > 0) {
-                        group = new NxpAidGroup(aids, category, description);
+                        group = new NfcAidGroup(aids, category, description);
                     }
                     else {
-                        group = new NxpAidGroup(category, description);
+                        group = new NfcAidGroup(category, description);
                     }
                     break;
                 }

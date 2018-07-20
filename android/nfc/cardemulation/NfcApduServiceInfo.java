@@ -18,7 +18,7 @@ package android.nfc.cardemulation;
 
 import android.nfc.cardemulation.ApduServiceInfo;
 import android.nfc.cardemulation.AidGroup;
-import android.nfc.cardemulation.NxpAidGroup;
+import android.nfc.cardemulation.NfcAidGroup;
 import android.nfc.cardemulation.CardEmulation;
 import android.nfc.cardemulation.HostApduService;
 import android.nfc.cardemulation.OffHostApduService;
@@ -34,7 +34,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.XmlResourceParser;
-import com.nxp.nfc.NxpConstants;
+import com.nxp.nfc.NfcConstants;
 import java.io.IOException;
 import android.content.pm.PackageManager;
 import org.xmlpull.v1.XmlPullParser;
@@ -53,8 +53,8 @@ import android.graphics.BitmapFactory;
 /**
  * @hide
  */
-public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcelable {
-    static final String TAG = "NxpApduServiceInfo";
+public final class NfcApduServiceInfo extends ApduServiceInfo implements Parcelable {
+    static final String TAG = "NfcApduServiceInfo";
 
     //name of secure element
     static final String SECURE_ELEMENT_ESE = "eSE";
@@ -81,12 +81,12 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
     /**
      * Mapping from category to static AID group
      */
-    final HashMap<String, NxpAidGroup> mStaticNxpAidGroups;
+    final HashMap<String, NfcAidGroup> mStaticNfcAidGroups;
 
     /**
      * Mapping from category to dynamic AID group
      */
-    final HashMap<String, NxpAidGroup> mDynamicNxpAidGroups;
+    final HashMap<String, NfcAidGroup> mDynamicNfcAidGroups;
 
     /**
     * The Drawable of the service banner specified by the Application Dynamically to be stored as byteArray.
@@ -115,35 +115,35 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
    /**
      * @hide
      */
-    public NxpApduServiceInfo(ResolveInfo info, boolean onHost, String description,
-            ArrayList<NxpAidGroup> staticNxpAidGroups, ArrayList<NxpAidGroup> dynamicNxpAidGroups,
+    public NfcApduServiceInfo(ResolveInfo info, boolean onHost, String description,
+            ArrayList<NfcAidGroup> staticNfcAidGroups, ArrayList<NfcAidGroup> dynamicNfcAidGroups,
             boolean requiresUnlock, int bannerResource, int uid,
             String settingsActivityName, ESeInfo seExtension,boolean modifiable){
-        super(info, onHost, description, nxpAidGroups2AidGroups(staticNxpAidGroups), nxpAidGroups2AidGroups(dynamicNxpAidGroups),
+        super(info, onHost, description, nfcAidGroups2AidGroups(staticNfcAidGroups), nfcAidGroups2AidGroups(dynamicNfcAidGroups),
                 requiresUnlock, bannerResource, uid, settingsActivityName);
         this.mModifiable = modifiable;        
-        this.mServiceState = NxpConstants.SERVICE_STATE_ENABLING;
-        this.mStaticNxpAidGroups = new HashMap<String, NxpAidGroup>();
-        this.mDynamicNxpAidGroups = new HashMap<String, NxpAidGroup>();
-        if(staticNxpAidGroups != null) {
-            for (NxpAidGroup nxpAidGroup : staticNxpAidGroups) {
-                this.mStaticNxpAidGroups.put(nxpAidGroup.getCategory(), nxpAidGroup);
+        this.mServiceState = NfcConstants.SERVICE_STATE_ENABLING;
+        this.mStaticNfcAidGroups = new HashMap<String, NfcAidGroup>();
+        this.mDynamicNfcAidGroups = new HashMap<String, NfcAidGroup>();
+        if(staticNfcAidGroups != null) {
+            for (NfcAidGroup nfcAidGroup : staticNfcAidGroups) {
+                this.mStaticNfcAidGroups.put(nfcAidGroup.getCategory(), nfcAidGroup);
             }
         }
 
-        if(dynamicNxpAidGroups != null) {
-            for (NxpAidGroup nxpAidGroup : dynamicNxpAidGroups) {
-                this.mDynamicNxpAidGroups.put(nxpAidGroup.getCategory(), nxpAidGroup);
+        if(dynamicNfcAidGroups != null) {
+            for (NfcAidGroup nfcAidGroup : dynamicNfcAidGroups) {
+                this.mDynamicNfcAidGroups.put(nfcAidGroup.getCategory(), nfcAidGroup);
             }
         }
         this.mSeExtension = seExtension;
     }
 
-    public NxpApduServiceInfo(PackageManager pm, ResolveInfo info, boolean onHost)
+    public NfcApduServiceInfo(PackageManager pm, ResolveInfo info, boolean onHost)
             throws XmlPullParserException, IOException {
         super(pm, info, onHost);
         this.mModifiable = false;
-        this.mServiceState = NxpConstants.SERVICE_STATE_ENABLING;
+        this.mServiceState = NfcConstants.SERVICE_STATE_ENABLING;
         ServiceInfo si = info.serviceInfo;
         XmlResourceParser parser = null;
         XmlResourceParser extParser = null;
@@ -186,18 +186,18 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
             Resources res = pm.getResourcesForApplication(si.applicationInfo);
             AttributeSet attrs = Xml.asAttributeSet(parser);
 
-            mStaticNxpAidGroups = new HashMap<String, NxpAidGroup>();
-            mDynamicNxpAidGroups = new HashMap<String, NxpAidGroup>();
+            mStaticNfcAidGroups = new HashMap<String, NfcAidGroup>();
+            mDynamicNfcAidGroups = new HashMap<String, NfcAidGroup>();
             for(Map.Entry<String,AidGroup> stringaidgroup : mStaticAidGroups.entrySet()) {
                 String category = stringaidgroup.getKey();
                 AidGroup aidg = stringaidgroup.getValue();
-                mStaticNxpAidGroups.put(category, new NxpAidGroup(aidg));
+                mStaticNfcAidGroups.put(category, new NfcAidGroup(aidg));
             }
 
             for(Map.Entry<String,AidGroup> stringaidgroup : mDynamicAidGroups.entrySet()) {
                 String category = stringaidgroup.getKey();
                 AidGroup aidg = stringaidgroup.getValue();
-                mDynamicNxpAidGroups.put(category, new NxpAidGroup(aidg));
+                mDynamicNfcAidGroups.put(category, new NfcAidGroup(aidg));
             }
 
         } catch (NameNotFoundException e) {
@@ -267,11 +267,11 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
         }
     }
 
-    static ArrayList<AidGroup> nxpAidGroups2AidGroups(ArrayList<NxpAidGroup> nxpAidGroup) {
+    static ArrayList<AidGroup> nfcAidGroups2AidGroups(ArrayList<NfcAidGroup> nfcAidGroup) {
         ArrayList<AidGroup> aidGroups = new ArrayList<AidGroup>();
-        if(nxpAidGroup != null) {
-            for(NxpAidGroup nxpag : nxpAidGroup) {
-                AidGroup ag = nxpag.createAidGroup();
+        if(nfcAidGroup != null) {
+            for(NfcAidGroup nfcag : nfcAidGroup) {
+                AidGroup ag = nfcag.createAidGroup();
                 aidGroups.add(ag);
             }
         }
@@ -308,7 +308,7 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
      */
     public ArrayList<String> getAids() {
         final ArrayList<String> aids = new ArrayList<String>();
-        for (NxpAidGroup group : getNxpAidGroups()) {
+        for (NfcAidGroup group : getNfcAidGroups()) {
             aids.addAll(group.getAids());
         }
         return aids;
@@ -321,13 +321,13 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
      * for that category.
      * @return List of AIDs registered by the service
      */
-    public ArrayList<NxpAidGroup> getNxpAidGroups() {
-        final ArrayList<NxpAidGroup> groups = new ArrayList<NxpAidGroup>();
-        for (Map.Entry<String, NxpAidGroup> entry : mDynamicNxpAidGroups.entrySet()) {
+    public ArrayList<NfcAidGroup> getNfcAidGroups() {
+        final ArrayList<NfcAidGroup> groups = new ArrayList<NfcAidGroup>();
+        for (Map.Entry<String, NfcAidGroup> entry : mDynamicNfcAidGroups.entrySet()) {
             groups.add(entry.getValue());
         }
-        for (Map.Entry<String, NxpAidGroup> entry : mStaticNxpAidGroups.entrySet()) {
-            if (!mDynamicNxpAidGroups.containsKey(entry.getKey())) {
+        for (Map.Entry<String, NfcAidGroup> entry : mStaticNfcAidGroups.entrySet()) {
+            if (!mDynamicNfcAidGroups.containsKey(entry.getKey())) {
                 // Consolidate AID groups - don't return static ones
                 // if a dynamic group exists for the category.
                 groups.add(entry.getValue());
@@ -339,7 +339,7 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
 
     /**
      * This is a convenience function to create an ApduServiceInfo object of the current
-     * NxpApduServiceInfo.
+     * NfcApduServiceInfo.
      * It is required for legacy functions which expect an ApduServiceInfo on a Binder
      * interface.
      *
@@ -347,7 +347,7 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
      */
     public ApduServiceInfo createApduServiceInfo() {
         return new ApduServiceInfo(this.getResolveInfo(), this.isOnHost(), this.getDescription(),
-            nxpAidGroups2AidGroups(this.getStaticNxpAidGroups()), nxpAidGroups2AidGroups(this.getDynamicNxpAidGroups()),
+            nfcAidGroups2AidGroups(this.getStaticNfcAidGroups()), nfcAidGroups2AidGroups(this.getDynamicNfcAidGroups()),
             this.requiresUnlock(), this.getBannerId(), this.getUid(),
             this.getSettingsActivityName());
     }
@@ -370,16 +370,16 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
     }
 
     public int getAidCacheSizeForCategory(String category) {
-        ArrayList<NxpAidGroup> nxpAidGroups = new ArrayList<NxpAidGroup>();
+        ArrayList<NfcAidGroup> nfcAidGroups = new ArrayList<NfcAidGroup>();
         List<String> aids;
         int aidCacheSize = 0x00;
         int aidLen = 0x00;
-        nxpAidGroups.addAll(getStaticNxpAidGroups());
-        nxpAidGroups.addAll(getDynamicNxpAidGroups());
-        if(nxpAidGroups == null || nxpAidGroups.size() == 0x00) {
+        nfcAidGroups.addAll(getStaticNfcAidGroups());
+        nfcAidGroups.addAll(getDynamicNfcAidGroups());
+        if(nfcAidGroups == null || nfcAidGroups.size() == 0x00) {
             return aidCacheSize;
         }
-        for(NxpAidGroup aidCache : nxpAidGroups) {
+        for(NfcAidGroup aidCache : nfcAidGroups) {
             if(!aidCache.getCategory().equals(category)) {
                 continue;
             }
@@ -416,15 +416,15 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
     }
 
     private int getTotalAidNumCategory( String category) {
-        ArrayList<NxpAidGroup> aidGroups = new ArrayList<NxpAidGroup>();
+        ArrayList<NfcAidGroup> aidGroups = new ArrayList<NfcAidGroup>();
         List<String> aids;
         int aidTotalNum = 0x00;
-        aidGroups.addAll(getStaticNxpAidGroups());
-        aidGroups.addAll(getDynamicNxpAidGroups());
+        aidGroups.addAll(getStaticNfcAidGroups());
+        aidGroups.addAll(getDynamicNfcAidGroups());
         if(aidGroups == null || aidGroups.size() == 0x00) {
             return aidTotalNum;
         }
-        for(NxpAidGroup aidCache : aidGroups) {
+        for(NfcAidGroup aidCache : aidGroups) {
             if(!aidCache.getCategory().equals(category)) {
                 continue;
             }
@@ -440,19 +440,19 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
     }
 
     /**@hide */
-    public ArrayList<NxpAidGroup> getStaticNxpAidGroups() {
-        final ArrayList<NxpAidGroup> groups = new ArrayList<NxpAidGroup>();
+    public ArrayList<NfcAidGroup> getStaticNfcAidGroups() {
+        final ArrayList<NfcAidGroup> groups = new ArrayList<NfcAidGroup>();
 
-        for (Map.Entry<String, NxpAidGroup> entry : mStaticNxpAidGroups.entrySet()) {
+        for (Map.Entry<String, NfcAidGroup> entry : mStaticNfcAidGroups.entrySet()) {
                 groups.add(entry.getValue());
         }
         return groups;
     }
 
     /**@hide */
-    public ArrayList<NxpAidGroup> getDynamicNxpAidGroups() {
-        final ArrayList<NxpAidGroup> groups = new ArrayList<NxpAidGroup>();
-        for (Map.Entry<String, NxpAidGroup> entry : mDynamicNxpAidGroups.entrySet()) {
+    public ArrayList<NfcAidGroup> getDynamicNfcAidGroups() {
+        final ArrayList<NfcAidGroup> groups = new ArrayList<NfcAidGroup>();
+        for (Map.Entry<String, NfcAidGroup> entry : mDynamicNfcAidGroups.entrySet()) {
             groups.add(entry.getValue());
         }
         return groups;
@@ -474,18 +474,18 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
         return bitmap;
     }
 
-    public void setOrReplaceDynamicNxpAidGroup(NxpAidGroup nxpAidGroup) {
-        super.setOrReplaceDynamicAidGroup(nxpAidGroup);
-        mDynamicNxpAidGroups.put(nxpAidGroup.getCategory(), nxpAidGroup);
+    public void setOrReplaceDynamicNfcAidGroup(NfcAidGroup nfcAidGroup) {
+        super.setOrReplaceDynamicAidGroup(nfcAidGroup);
+        mDynamicNfcAidGroups.put(nfcAidGroup.getCategory(), nfcAidGroup);
     }
 
-    public NxpAidGroup getDynamicNxpAidGroupForCategory(String category) {
-        return mDynamicNxpAidGroups.get(category);
+    public NfcAidGroup getDynamicNfcAidGroupForCategory(String category) {
+        return mDynamicNfcAidGroups.get(category);
     }
 
-    public boolean removeDynamicNxpAidGroupForCategory(String category) {
+    public boolean removeDynamicNfcAidGroupForCategory(String category) {
         super.removeDynamicAidGroupForCategory(category);
-        return (mDynamicNxpAidGroups.remove(category) != null);
+        return (mDynamicNfcAidGroups.remove(category) != null);
     }
 
     public Drawable loadBanner(PackageManager pm) {
@@ -518,12 +518,12 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
         out.append(getComponent());
         out.append(", description: " + mDescription);
         out.append(", Static AID Groups: ");
-        for (NxpAidGroup nxpAidGroup : mStaticNxpAidGroups.values()) {
-            out.append(nxpAidGroup.toString());
+        for (NfcAidGroup nfcAidGroup : mStaticNfcAidGroups.values()) {
+            out.append(nfcAidGroup.toString());
         }
         out.append(", Dynamic AID Groups: ");
-        for (NxpAidGroup nxpAidGroup : mDynamicNxpAidGroups.values()) {
-            out.append(nxpAidGroup.toString());
+        for (NfcAidGroup nfcAidGroup : mDynamicNfcAidGroups.values()) {
+            out.append(nfcAidGroup.toString());
         }
         return out.toString();
     }
@@ -531,8 +531,8 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof NxpApduServiceInfo)) return false;
-        NxpApduServiceInfo thatService = (NxpApduServiceInfo) o;
+        if (!(o instanceof NfcApduServiceInfo)) return false;
+        NfcApduServiceInfo thatService = (NfcApduServiceInfo) o;
 
         return thatService.getComponent().equals(this.getComponent());
     }
@@ -542,13 +542,13 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
         mService.writeToParcel(dest, flags);
         dest.writeString(mDescription);
         dest.writeInt(mOnHost ? 1 : 0);
-        dest.writeInt(mStaticNxpAidGroups.size());
-        if (mStaticNxpAidGroups.size() > 0) {
-            dest.writeTypedList(new ArrayList<NxpAidGroup>(mStaticNxpAidGroups.values()));
+        dest.writeInt(mStaticNfcAidGroups.size());
+        if (mStaticNfcAidGroups.size() > 0) {
+            dest.writeTypedList(new ArrayList<NfcAidGroup>(mStaticNfcAidGroups.values()));
         }
-        dest.writeInt(mDynamicNxpAidGroups.size());
-        if (mDynamicNxpAidGroups.size() > 0) {
-            dest.writeTypedList(new ArrayList<NxpAidGroup>(mDynamicNxpAidGroups.values()));
+        dest.writeInt(mDynamicNfcAidGroups.size());
+        if (mDynamicNfcAidGroups.size() > 0) {
+            dest.writeTypedList(new ArrayList<NfcAidGroup>(mDynamicNfcAidGroups.values()));
         }
         dest.writeInt(mRequiresDeviceUnlock ? 1 : 0);
         dest.writeInt(mBannerResourceId);
@@ -560,22 +560,22 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
         dest.writeInt(mServiceState);
     };
 
-    public static final Parcelable.Creator<NxpApduServiceInfo> CREATOR =
-            new Parcelable.Creator<NxpApduServiceInfo>() {
+    public static final Parcelable.Creator<NfcApduServiceInfo> CREATOR =
+            new Parcelable.Creator<NfcApduServiceInfo>() {
         @Override
-        public NxpApduServiceInfo createFromParcel(Parcel source) {
+        public NfcApduServiceInfo createFromParcel(Parcel source) {
             ResolveInfo info = ResolveInfo.CREATOR.createFromParcel(source);
             String description = source.readString();
             boolean onHost = source.readInt() != 0;
-            ArrayList<NxpAidGroup> staticNxpAidGroups = new ArrayList<NxpAidGroup>();
+            ArrayList<NfcAidGroup> staticNfcAidGroups = new ArrayList<NfcAidGroup>();
             int numStaticGroups = source.readInt();
             if (numStaticGroups > 0) {
-                source.readTypedList(staticNxpAidGroups, NxpAidGroup.CREATOR);
+                source.readTypedList(staticNfcAidGroups, NfcAidGroup.CREATOR);
             }
-            ArrayList<NxpAidGroup> dynamicNxpAidGroups = new ArrayList<NxpAidGroup>();
+            ArrayList<NfcAidGroup> dynamicNfcAidGroups = new ArrayList<NfcAidGroup>();
             int numDynamicGroups = source.readInt();
             if (numDynamicGroups > 0) {
-                source.readTypedList(dynamicNxpAidGroups, NxpAidGroup.CREATOR);
+                source.readTypedList(dynamicNfcAidGroups, NfcAidGroup.CREATOR);
             }
             boolean requiresUnlock = source.readInt() != 0;
             int bannerResource = source.readInt();
@@ -585,16 +585,16 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
             byte[] byteArrayBanner = new byte[]{0};
             byteArrayBanner = source.createByteArray();
             boolean modifiable = source.readInt() != 0;
-            NxpApduServiceInfo service = new NxpApduServiceInfo(info, onHost, description, staticNxpAidGroups,
-                    dynamicNxpAidGroups, requiresUnlock, bannerResource, uid,
+            NfcApduServiceInfo service = new NfcApduServiceInfo(info, onHost, description, staticNfcAidGroups,
+                    dynamicNfcAidGroups, requiresUnlock, bannerResource, uid,
                     settingsActivityName, seExtension, modifiable);
             service.setServiceState(CardEmulation.CATEGORY_OTHER, source.readInt());
             return service;
         }
 
         @Override
-        public NxpApduServiceInfo[] newArray(int size) {
-            return new NxpApduServiceInfo[size];
+        public NfcApduServiceInfo[] newArray(int size) {
+            return new NfcApduServiceInfo[size];
         }
     };
         public boolean isServiceEnabled(String category) {
@@ -602,7 +602,7 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
                 return true;
             }
 
-            if((mServiceState ==  NxpConstants.SERVICE_STATE_ENABLED) || (mServiceState ==  NxpConstants.SERVICE_STATE_DISABLING)){
+            if((mServiceState ==  NfcConstants.SERVICE_STATE_ENABLED) || (mServiceState ==  NfcConstants.SERVICE_STATE_DISABLING)){
                 return true;
             }else{/*SERVICE_STATE_DISABLED or SERVICE_STATE_ENABLING*/
                 return false;
@@ -624,30 +624,30 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
                 return;
             }
             Log.d(TAG, "setServiceState:Description:" + mDescription + ":InternalState:" + mServiceState + ":flagEnable:"+ flagEnable);
-            if(((mServiceState == NxpConstants.SERVICE_STATE_ENABLED) &&    (flagEnable == true )) ||
-               ((mServiceState ==  NxpConstants.SERVICE_STATE_DISABLED) &&  (flagEnable == false)) ||
-               ((mServiceState ==  NxpConstants.SERVICE_STATE_DISABLING) && (flagEnable == false)) ||
-               ((mServiceState ==  NxpConstants.SERVICE_STATE_ENABLING) &&  (flagEnable == true ))){
+            if(((mServiceState == NfcConstants.SERVICE_STATE_ENABLED) &&    (flagEnable == true )) ||
+               ((mServiceState ==  NfcConstants.SERVICE_STATE_DISABLED) &&  (flagEnable == false)) ||
+               ((mServiceState ==  NfcConstants.SERVICE_STATE_DISABLING) && (flagEnable == false)) ||
+               ((mServiceState ==  NfcConstants.SERVICE_STATE_ENABLING) &&  (flagEnable == true ))){
                 /*No change in state*/
                 return;
             }
-            else if((mServiceState ==  NxpConstants.SERVICE_STATE_ENABLED) && (flagEnable == false)){
-                mServiceState =  NxpConstants.SERVICE_STATE_DISABLING;
+            else if((mServiceState ==  NfcConstants.SERVICE_STATE_ENABLED) && (flagEnable == false)){
+                mServiceState =  NfcConstants.SERVICE_STATE_DISABLING;
             }
-            else if((mServiceState ==  NxpConstants.SERVICE_STATE_DISABLED) && (flagEnable == true)){
-                mServiceState =  NxpConstants.SERVICE_STATE_ENABLING;
+            else if((mServiceState ==  NfcConstants.SERVICE_STATE_DISABLED) && (flagEnable == true)){
+                mServiceState =  NfcConstants.SERVICE_STATE_ENABLING;
             }
-            else if((mServiceState ==  NxpConstants.SERVICE_STATE_DISABLING) && (flagEnable == true)){
-                mServiceState =  NxpConstants.SERVICE_STATE_ENABLED;
+            else if((mServiceState ==  NfcConstants.SERVICE_STATE_DISABLING) && (flagEnable == true)){
+                mServiceState =  NfcConstants.SERVICE_STATE_ENABLED;
             }
-            else if((mServiceState ==  NxpConstants.SERVICE_STATE_ENABLING) && (flagEnable == false)){
-                mServiceState =  NxpConstants.SERVICE_STATE_DISABLED;
+            else if((mServiceState ==  NfcConstants.SERVICE_STATE_ENABLING) && (flagEnable == false)){
+                mServiceState =  NfcConstants.SERVICE_STATE_DISABLED;
             }
         }
 
         public int getServiceState(String category) {
             if(category != CardEmulation.CATEGORY_OTHER) {
-                return NxpConstants.SERVICE_STATE_ENABLED;
+                return NfcConstants.SERVICE_STATE_ENABLED;
             }
 
             return mServiceState;
@@ -655,7 +655,7 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
 
         public int setServiceState(String category ,int state) {
             if(category != CardEmulation.CATEGORY_OTHER) {
-                return NxpConstants.SERVICE_STATE_ENABLED;
+                return NfcConstants.SERVICE_STATE_ENABLED;
             }
 
             mServiceState = state;
@@ -677,34 +677,34 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
             if(commitStatus){
                 /*Commit was successful and all newly added services were registered,
                  * disabled applications were removed/unregistered from routing entries*/
-                if(mServiceState ==  NxpConstants.SERVICE_STATE_DISABLING){
-                    mServiceState =  NxpConstants.SERVICE_STATE_DISABLED;
+                if(mServiceState ==  NfcConstants.SERVICE_STATE_DISABLING){
+                    mServiceState =  NfcConstants.SERVICE_STATE_DISABLED;
                 }
-                else if(mServiceState == NxpConstants.SERVICE_STATE_ENABLING){
-                    mServiceState = NxpConstants.SERVICE_STATE_ENABLED;
+                else if(mServiceState == NfcConstants.SERVICE_STATE_ENABLING){
+                    mServiceState = NfcConstants.SERVICE_STATE_ENABLED;
                 }
 
             }else{
                 /*Commit failed and all newly added services were not registered successfully.
                  * disabled applications were not successfully disabled*/
-                if(mServiceState ==  NxpConstants.SERVICE_STATE_DISABLING){
-                    mServiceState =  NxpConstants.SERVICE_STATE_ENABLED;
+                if(mServiceState ==  NfcConstants.SERVICE_STATE_DISABLING){
+                    mServiceState =  NfcConstants.SERVICE_STATE_ENABLED;
                 }
-                else if(mServiceState ==  NxpConstants.SERVICE_STATE_ENABLING){
-                    mServiceState =  NxpConstants.SERVICE_STATE_DISABLED;
+                else if(mServiceState ==  NfcConstants.SERVICE_STATE_ENABLING){
+                    mServiceState =  NfcConstants.SERVICE_STATE_DISABLED;
                 }
             }
         }
 
         static String serviceStateToString(int state) {
             switch (state) {
-                case NxpConstants.SERVICE_STATE_DISABLED:
+                case NfcConstants.SERVICE_STATE_DISABLED:
                     return "DISABLED";
-                case NxpConstants.SERVICE_STATE_ENABLED:
+                case NfcConstants.SERVICE_STATE_ENABLED:
                     return "ENABLED";
-                case NxpConstants.SERVICE_STATE_ENABLING:
+                case NfcConstants.SERVICE_STATE_ENABLING:
                     return "ENABLING";
-                case NxpConstants.SERVICE_STATE_DISABLING:
+                case NfcConstants.SERVICE_STATE_DISABLING:
                     return "DISABLING";
                 default:
                     return "UNKNOWN";
@@ -756,8 +756,8 @@ public final class NxpApduServiceInfo extends ApduServiceInfo implements Parcela
                 dest.writeInt(powerState);
             }
 
-            public static final Parcelable.Creator<NxpApduServiceInfo.ESeInfo> CREATOR =
-                    new Parcelable.Creator<NxpApduServiceInfo.ESeInfo>() {
+            public static final Parcelable.Creator<NfcApduServiceInfo.ESeInfo> CREATOR =
+                    new Parcelable.Creator<NfcApduServiceInfo.ESeInfo>() {
 
                 @Override
                 public ESeInfo createFromParcel(Parcel source) {
