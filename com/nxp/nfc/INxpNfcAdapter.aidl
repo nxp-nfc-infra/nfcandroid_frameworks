@@ -29,5 +29,6 @@ interface INxpNfcAdapter
     int mPOSSetReaderMode(String pkg, boolean on);
     boolean mPOSGetReaderMode(String pkg);
     void stopPoll(String pkg, int mode);
+    void changeDiscoveryTech(IBinder binder, int pollTech, int listenTech);
     void startPoll(String pkg);
 }

@@ -135,6 +135,20 @@ public final class NxpNfcAdapter {
         }
     }
 
+    /**
+     * Change poll and listen technology
+     * Generic API is use to disable polling and enable speicific listening technology
+     * @param binder,pollTech, listenTech.
+     * @return void
+     * @hide
+     */
+    public void changeDiscoveryTech(IBinder binder, int pollTech, int listenTech) throws IOException {
+        try {
+            sNxpService.changeDiscoveryTech(binder, pollTech, listenTech);
+        } catch (RemoteException e) {
+            Log.e(TAG, "changeDiscoveryTech failed", e);
+        }
+    }
      /**
      * @hide
      */
