@@ -76,9 +76,9 @@ public class SemsExecutor {
    * AID of the SEMS Application Instance.
    */
   private static final byte[] SEMS_APP_AID =
-      SemsUtil.parseHexString("A00000015153454D53000000");
+      SemsUtil.parseHexString("A00000015153454D5300000001");
   private static final byte[] SEMS_UPD_APP_AID =
-      SemsUtil.parseHexString("A00000015153454D53FFFFFF");
+      SemsUtil.parseHexString("A00000015153454D53FFFFFF01");
 
   private static final byte[] sw9000 = {(byte)0x90, (byte)0x00};
   private static final byte[] sw6F00 = {(byte)0x6F, (byte)0x00};
