@@ -215,9 +215,9 @@ public class SemsOmapiApduChannel implements ISemsApduChannel {
 
   class BindToSEService extends Thread {
     public void run() {
-      seService = new SEService(sContext, mExecutor, mListener);
       connectionTimer = new Timer();
       connectionTimer.schedule(mTimerTask, SERVICE_CONNECTION_TIME_OUT);
+      seService = new SEService(sContext, mExecutor, mListener);
       Log.d(TAG, "Bind to SE service");
     }
   }
