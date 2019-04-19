@@ -112,6 +112,17 @@ public class SemsOmapiApduChannel implements ISemsApduChannel {
   private void getSession() throws SemsException {
 
     waitForConnection();
+    if(seService == null){
+      Log.d(TAG, "SeService connection failed shall retry");
+      try{
+        new Thread().sleep(500);
+      } catch(Exception e) {
+        Log.d(TAG, "Thread interruption exception received");
+      }
+      mbIsConnected =  false;
+      bindSEService();
+      waitForConnection();
+    }
     Reader[] readers = seService.getReaders();
     if (readers.length > meSEIdx) {
       try {
