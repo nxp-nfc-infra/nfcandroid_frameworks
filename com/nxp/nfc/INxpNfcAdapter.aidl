@@ -15,37 +15,11 @@
   */
 package com.nxp.nfc;
 
-import com.nxp.nfc.INxpNfcAdapterExtras;
 /**
  * @hide
  */
 interface INxpNfcAdapter
 {
-    void DefaultRouteSet(int routeLoc, boolean fullPower, boolean lowPower, boolean noPower);
-    void MifareDesfireRouteSet(int routeLoc, boolean fullPower, boolean lowPower, boolean noPower);
-    void MifareCLTRouteSet(int routeLoc, boolean fullPower, boolean lowPower, boolean noPower);
-    void NfcFRouteSet(int routeLoc, boolean fullPower, boolean lowPower, boolean noPower);
-    int[] getActiveSecureElementList(String pkg);
-    INxpNfcAdapterExtras getNxpNfcAdapterExtrasInterface();
-    int mPOSSetReaderMode(String pkg, boolean on);
-    boolean mPOSGetReaderMode(String pkg);
-    void stopPoll(String pkg, int mode);
-    void changeDiscoveryTech(IBinder binder, int pollTech, int listenTech);
-    void startPoll(String pkg);
-    byte[]  getFWVersion();
-    byte[] readerPassThruMode(byte status, byte modulationTyp);
-    byte[] transceiveAppData(in byte[] data);
-    int setConfig(String configs , String pkg);
-    int selectUicc(int uiccSlot);
-    int getMaxAidRoutingTableSize();
-    int getCommittedAidRoutingTableSize();
-    int getSelectedUicc();
-    int activateSeInterface();
-    int deactivateSeInterface();
-    int setFieldDetectMode(boolean mode);
-    boolean isFieldDetectEnabled();
     int doWriteT4tData(in byte[] fileId, in byte[] data, int length);
     byte[] doReadT4tData(in byte[] fileId);
-    int nfcSelfTest(int type);
-    int configureSecureReader(boolean on, String readerType);
 }
