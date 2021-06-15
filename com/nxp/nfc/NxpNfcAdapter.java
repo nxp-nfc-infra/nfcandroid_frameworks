@@ -27,6 +27,7 @@ import android.os.IBinder;
 import android.os.ServiceManager;
 
 import android.os.RemoteException;
+import android.annotation.RequiresPermission;
 
 import android.util.Log;
 import java.util.List;
@@ -149,6 +150,7 @@ public final class NxpNfcAdapter {
                 -9  ERROR_NDEF_VALIDATION_FAILED
      * <p>Requires {@link   android.Manifest.permission#NFC} permission.
      */
+    @RequiresPermission(android.Manifest.permission.NFC)
     public int doWriteT4tData(byte[] fileId, byte[] data, int length) {
       try {
         return sNxpService.doWriteT4tData(fileId, data, length);
@@ -167,6 +169,7 @@ public final class NxpNfcAdapter {
      *                      Returns 0xFF if file is empty.
      * <p>Requires {@link   android.Manifest.permission#NFC} permission.
      */
+    @RequiresPermission(android.Manifest.permission.NFC)
     public byte[] doReadT4tData(byte[] fileId) {
       try {
         return sNxpService.doReadT4tData(fileId);
