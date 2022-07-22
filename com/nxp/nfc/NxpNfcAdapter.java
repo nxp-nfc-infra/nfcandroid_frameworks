@@ -2,7 +2,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2013-2021 NXP
+ *  Copyright 2013-2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ public final class NxpNfcAdapter {
     // recovery
     private static INfcAdapter sService;
     private static INxpNfcAdapter sNxpService;
+    private static INxpNfcDiscoveryProfile sNxpDiscoveryService;
 
     private NxpNfcAdapter() {
     }
@@ -70,6 +71,11 @@ public final class NxpNfcAdapter {
             sNxpService = getNxpNfcAdapterInterface();
              if (sNxpService == null) {
                 Log.e(TAG, "could not retrieve NXP NFC service");
+                throw new UnsupportedOperationException();
+            }
+            sNxpDiscoveryService = getNxpNfcDiscoveryProfileAdapterInterface();
+             if (sNxpDiscoveryService == null) {
+                Log.e(TAG, "could not retrieve NXP Discovery NFC service");
                 throw new UnsupportedOperationException();
             }
             sIsInitialized = true;
@@ -109,6 +115,7 @@ public final class NxpNfcAdapter {
         // and on a well-behaved system should never happen
         sService = service;
         sNxpService = getNxpNfcAdapterInterface();
+        sNxpDiscoveryService = getNxpNfcDiscoveryProfileAdapterInterface();
         return;
     }
 
@@ -127,6 +134,26 @@ public final class NxpNfcAdapter {
           return null;
         }
         return INxpNfcAdapter.Stub.asInterface(b);
+      } catch (RemoteException e) {
+        return null;
+      }
+    }
+
+       /**
+     * @hide
+     */
+    public static INxpNfcDiscoveryProfile getNxpNfcDiscoveryProfileAdapterInterface() {
+      if (sService == null) {
+        throw new UnsupportedOperationException(
+            "You need a reference from NfcAdapter to use the "
+            + " NXP NFC APIs");
+      }
+      try {
+        IBinder b = sService.getNxpNfcDiscoveryProfileAdapterVendorInterface("nxp_nfc_discovery");
+        if (b == null) {
+          return null;
+        }
+        return INxpNfcDiscoveryProfile.Stub.asInterface(b);
       } catch (RemoteException e) {
         return null;
       }
@@ -178,5 +205,44 @@ public final class NxpNfcAdapter {
         attemptDeadServiceRecovery(e);
         return null;
       }
+    }
+
+    @RequiresPermission(android.Manifest.permission.NFC)
+    public void doSetEMVCoMode(int tech) {
+      try {
+        Log.i(TAG, "doSetEMVCoMode ");
+        sNxpDiscoveryService.doSetEMVCoMode(tech);
+        return;
+      } catch (RemoteException e) {
+        e.printStackTrace();
+        attemptDeadServiceRecovery(e);
+        return;
+      }
+    }
+
+    @RequiresPermission(android.Manifest.permission.NFC)
+    public int doGetCurrentDiscoveryMode() {
+      try {
+        Log.i(TAG, "doGetCurrentDiscoveryMode ");
+        return sNxpDiscoveryService.doGetCurrentDiscoveryMode();
+      } catch (RemoteException e) {
+        e.printStackTrace();
+        attemptDeadServiceRecovery(e);
+        return -1;
+      }
+    }
+
+    @RequiresPermission(android.Manifest.permission.NFC)
+    public void doRegisterEMVCoEventListener(IEMVCoClientCallback mEMVCoCallback) {
+      try {
+        Log.i(TAG, "doRegisterEMVCoEventListener ");
+        sNxpDiscoveryService.doRegisterEMVCoEventListener(mEMVCoCallback);
+        return;
+      } catch (RemoteException e) {
+        e.printStackTrace();
+        attemptDeadServiceRecovery(e);
+        return;
+      }
+
     }
 }
