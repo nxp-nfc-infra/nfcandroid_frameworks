@@ -121,8 +121,8 @@ public final class NxpNfcAdapter {
             "You need a reference from NfcAdapter to use the "
             + " NXP NFC APIs");
       }
-      return null;
-      /*try {
+
+      try {
         IBinder b = sService.getNfcAdapterVendorInterface("nxp");
         if (b == null) {
           return null;
@@ -130,7 +130,7 @@ public final class NxpNfcAdapter {
         return INxpNfcAdapter.Stub.asInterface(b);
       } catch (RemoteException e) {
         return null;
-      }*/
+      }
     }
 
     /**
