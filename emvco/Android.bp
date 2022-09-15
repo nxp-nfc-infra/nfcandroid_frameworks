@@ -1,0 +1,17 @@
+//#######################################
+// com.nxp.emvco - library
+//#######################################
+java_library {
+    name: "com.nxp.emvco",
+    installable: true,
+    required: ["com.nxp.emvco.xml"],
+    srcs: [
+        "com/**/I*.aidl",
+        "com/**/*.java",
+    ],
+}
+prebuilt_etc {
+    name: "com.nxp.emvco.xml",
+    src: "com.nxp.emvco.xml",
+    sub_dir: "permissions"
+}

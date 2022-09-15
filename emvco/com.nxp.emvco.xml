@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (c) ????
+-->
+
+<!-- Assist library for NXP EMVCO feature. -->
+<permissions>
+    <library name="com.nxp.emvco"
+        file="/system/framework/com.nxp.emvco.jar" />
+</permissions>
+
