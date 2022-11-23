@@ -96,7 +96,7 @@ public final class NxpNfcDiscoveryProfile {
   }
 
   @RequiresPermission(android.Manifest.permission.NFC)
-  public void doSetEMVCoMode(int tech, boolean isStartEMVCo) {
+  public void setEMVCoMode(int tech, boolean isStartEMVCo) {
     Message msg = mHandler.obtainMessage();
     msg.what = MSG_SET_EMVCO_MODE;
     msg.arg1 = tech;
@@ -105,10 +105,10 @@ public final class NxpNfcDiscoveryProfile {
   }
 
   @RequiresPermission(android.Manifest.permission.NFC)
-  public int doGetCurrentDiscoveryMode() {
+  public int getCurrentDiscoveryMode() {
     try {
-      Log.i(TAG, "doGetCurrentDiscoveryMode ");
-      return sNxpDiscoveryService.doGetCurrentDiscoveryMode();
+      Log.i(TAG, "getCurrentDiscoveryMode ");
+      return sNxpDiscoveryService.getCurrentDiscoveryMode();
     } catch (RemoteException e) {
       e.printStackTrace();
       return -1;
@@ -117,7 +117,7 @@ public final class NxpNfcDiscoveryProfile {
 
   @RequiresPermission(android.Manifest.permission.NFC)
   public void
-  doRegisterEMVCoEventListener(IEMVCoAppClientCallback mEMVCoCallback) {
+  registerEMVCoEventListener(IEMVCoAppClientCallback mEMVCoCallback) {
     if (mEMVCoCallback != null) {
       mEMVCoAppClientCallback = mEMVCoCallback;
     } else {
@@ -159,14 +159,14 @@ public final class NxpNfcDiscoveryProfile {
       switch (msg.what) {
       case MSG_SET_EMVCO_MODE: {
         int technologyToPool = msg.arg1;
-        Log.i(TAG, "doSetEMVCoMode technologyToPool:" + technologyToPool);
+        Log.i(TAG, "setEMVCoMode technologyToPool:" + technologyToPool);
         boolean isStartEMVCo = (msg.arg2 == 1) ? true : false;
         try {
           Log.i(
               TAG,
-              "doSetEMVCoMode NFC oFF so call doSetEmVCo mode with technologyToPool:" +
+              "setEMVCoMode NFC oFF so call doSetEmVCo mode with technologyToPool:" +
                   technologyToPool + " isStartEMVCo:" + isStartEMVCo);
-          sNxpDiscoveryService.doSetEMVCoMode(technologyToPool, isStartEMVCo);
+          sNxpDiscoveryService.setEMVCoMode(technologyToPool, isStartEMVCo);
         } catch (RemoteException e) {
           e.printStackTrace();
         }
@@ -182,7 +182,7 @@ public final class NxpNfcDiscoveryProfile {
           } else {
             Log.e(TAG, "App has not registered callback");
           }
-          sNxpDiscoveryService.doRegisterEMVCoEventListener(mEmvcoHalCallback);
+          sNxpDiscoveryService.registerEMVCoEventListener(mEmvcoHalCallback);
         } catch (RemoteException e) {
           e.printStackTrace();
         }
