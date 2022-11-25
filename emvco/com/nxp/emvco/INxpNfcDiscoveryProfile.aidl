@@ -22,7 +22,7 @@ import com.nxp.emvco.IEMVCoHalClientCallback;
  */
 interface INxpNfcDiscoveryProfile
 {
-   void doSetEMVCoMode(in int tech, in boolean isStartEMVCo);
-   int doGetCurrentDiscoveryMode();
-   void doRegisterEMVCoEventListener(IEMVCoHalClientCallback mEMVCoCallback);
+   void setEMVCoMode(in int tech, in boolean isStartEMVCo);
+   int getCurrentDiscoveryMode();
+   void registerEMVCoEventListener(IEMVCoHalClientCallback mEMVCoCallback);
 }
