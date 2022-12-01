@@ -23,9 +23,6 @@ import android.os.Parcelable;
 public enum EmvcoStatus implements Parcelable {
   OK,
   FAILED,
-  ERR_TRANSPORT,
-  ERR_CMD_TIMEOUT,
-  REFUSED,
   UNKNOWN;
 
   @Override

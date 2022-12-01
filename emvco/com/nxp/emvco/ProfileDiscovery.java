@@ -37,21 +37,21 @@ import com.nxp.emvco.EmvcoEvent;
 import com.nxp.emvco.EmvcoStatus;
 import com.nxp.emvco.IEMVCoAppClientCallback;
 import com.nxp.emvco.IEMVCoHalClientCallback;
-import com.nxp.emvco.INxpNfcDiscoveryProfile;
+import com.nxp.emvco.IProfileDiscovery;
 import java.io.IOException;
 import java.util.List;
 
-public final class NxpNfcDiscoveryProfile {
-  private static final String TAG = NxpNfcDiscoveryProfile.class.getName();
+public final class ProfileDiscovery {
+  private static final String TAG = ProfileDiscovery.class.getName();
   private IEMVCoAppClientCallback mEMVCoAppClientCallback = null;
-  private INxpNfcDiscoveryProfile sNxpDiscoveryService;
+  private IProfileDiscovery sNxpDiscoveryService;
   private Object mNfcProfileSyncObj = new Object();
   private int mNfcState = NfcAdapter.STATE_OFF;
   private INfcAdapter mNfcAdapter;
   private static final int MSG_REGISTER_EMVCO_LISTENER = 1;
   private static final int MSG_SET_EMVCO_MODE = 2;
-  private NxpNfcDiscoveryProfileHandler mHandler;
-  private static NxpNfcDiscoveryProfile mNxpNfcDiscoveryProfile;
+  private ProfileDiscoveryHandler mHandler;
+  private static ProfileDiscovery mProfileDiscovery;
 
   private IEMVCoHalClientCallback.Stub mEmvcoHalCallback =
       new IEMVCoHalClientCallback.Stub() {
@@ -77,22 +77,22 @@ public final class NxpNfcDiscoveryProfile {
         }
       };
 
-  private NxpNfcDiscoveryProfile() {
-    Log.e(TAG, "NxpNfcDiscoveryProfile");
-    mHandler = new NxpNfcDiscoveryProfileHandler();
+  private ProfileDiscovery() {
+    Log.e(TAG, "ProfileDiscovery");
+    mHandler = new ProfileDiscoveryHandler();
     mNfcAdapter = getServiceInterface();
-    sNxpDiscoveryService = getNxpNfcDiscoveryProfileAdapterInterface();
+    sNxpDiscoveryService = getProfileDiscoveryAdapterInterface();
 
     Message emvcoMsg = mHandler.obtainMessage();
     emvcoMsg.what = MSG_REGISTER_EMVCO_LISTENER;
     mHandler.sendMessage(emvcoMsg);
   }
 
-  public static synchronized NxpNfcDiscoveryProfile getInstance() {
-    if (mNxpNfcDiscoveryProfile == null) {
-      mNxpNfcDiscoveryProfile = new NxpNfcDiscoveryProfile();
+  public static synchronized ProfileDiscovery getInstance() {
+    if (mProfileDiscovery == null) {
+      mProfileDiscovery = new ProfileDiscovery();
     }
-    return mNxpNfcDiscoveryProfile;
+    return mProfileDiscovery;
   }
 
   @RequiresPermission(android.Manifest.permission.NFC)
@@ -135,25 +135,25 @@ public final class NxpNfcDiscoveryProfile {
     return INfcAdapter.Stub.asInterface(b);
   }
 
-  private INxpNfcDiscoveryProfile getNxpNfcDiscoveryProfileAdapterInterface() {
+  private IProfileDiscovery getProfileDiscoveryAdapterInterface() {
     if (mNfcAdapter == null) {
       throw new UnsupportedOperationException(
           "You need a reference from NfcAdapter to use the "
           + " NXP NFC APIs");
     }
     try {
-      IBinder b = mNfcAdapter.getNxpNfcDiscoveryProfileAdapterVendorInterface(
+      IBinder b = mNfcAdapter.getProfileDiscoveryAdapterVendorInterface(
           "nxp_nfc_discovery");
       if (b == null) {
         return null;
       }
-      return INxpNfcDiscoveryProfile.Stub.asInterface(b);
+      return IProfileDiscovery.Stub.asInterface(b);
     } catch (RemoteException e) {
       return null;
     }
   }
 
-  final class NxpNfcDiscoveryProfileHandler extends Handler {
+  final class ProfileDiscoveryHandler extends Handler {
     @Override
     public void handleMessage(Message msg) {
       switch (msg.what) {
