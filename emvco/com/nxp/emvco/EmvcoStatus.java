@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2022 NXP
+ *  Copyright 2022,2023 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,36 +17,11 @@
  ******************************************************************************/
 
 package com.nxp.emvco;
-import android.os.Parcel;
-import android.os.Parcelable;
 
-public enum EmvcoStatus implements Parcelable {
-  OK,
-  FAILED,
-  UNKNOWN;
-
-  @Override
-  public int describeContents() {
-    return 0;
-  }
-
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(name());
-  }
-
-  public static final Creator<EmvcoStatus> CREATOR =
-      new Creator<EmvcoStatus>() {
-        @Override
-        public EmvcoStatus createFromParcel(final Parcel source) {
-          return EmvcoStatus.valueOf(source.readString());
-        }
-
-        @Override
-        public EmvcoStatus[] newArray(final int size) {
-          return new EmvcoStatus[size];
-        }
-      };
+public enum EmvcoStatus {
+  EMVCO_STATUS_OK,
+  EMVCO_STATUS_FAILED,
+  EMVCO_STATUS_UNKNOWN;
 
   public static EmvcoStatus valueOf(int rx_status) {
     for (EmvcoStatus status : EmvcoStatus.values()) {
@@ -54,6 +29,6 @@ public enum EmvcoStatus implements Parcelable {
         return status;
       }
     }
-    return UNKNOWN;
+    return EMVCO_STATUS_UNKNOWN;
   };
 }

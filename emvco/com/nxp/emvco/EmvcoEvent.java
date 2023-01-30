@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2022 NXP
+ *  Copyright 2022,2023 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@
  ******************************************************************************/
 
 package com.nxp.emvco;
-import android.os.Parcel;
-import android.os.Parcelable;
 
-public enum EmvcoEvent implements Parcelable {
+public enum EmvcoEvent {
   EMVCO_OPEN_CHNL_CPLT_EVT(0),
   EMVCO_OPEN_CHNL_ERROR_EVT(1),
   EMVCO_CLOSE_CHNL_CPLT_EVT(2),
@@ -33,27 +31,7 @@ public enum EmvcoEvent implements Parcelable {
   private final int value;
   EmvcoEvent(int value) { this.value = value; }
 
-  @Override
-  public int describeContents() {
-    return 0;
-  }
-
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(name());
-  }
-
-  public static final Creator<EmvcoEvent> CREATOR = new Creator<EmvcoEvent>() {
-    @Override
-    public EmvcoEvent createFromParcel(final Parcel source) {
-      return EmvcoEvent.valueOf(source.readString());
-    }
-
-    @Override
-    public EmvcoEvent[] newArray(final int size) {
-      return new EmvcoEvent[size];
-    }
-  };
+  public int getValue() { return value; }
 
   public static EmvcoEvent valueOf(int rx_event) {
     for (EmvcoEvent event : EmvcoEvent.values()) {

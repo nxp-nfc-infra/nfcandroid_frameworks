@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2021 NXP
+ *  Copyright (C) 2023 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 
 package com.nxp.emvco;
 
-public interface IEMVCoAppClientCallback {
-  void sendData(byte[] data);
-  void sendEvent(EmvcoEvent event, EmvcoStatus status);
+public interface INfcStateChangeRequestCallback {
+  void enableNfc(boolean turnOn);
 }

@@ -5,6 +5,7 @@ java_library {
     name: "com.nxp.emvco",
     installable: true,
     required: ["com.nxp.emvco.xml"],
+    static_libs: ["android.hardware.emvco-V1-java"],
     srcs: [
         "com/**/I*.aidl",
         "com/**/*.java",

@@ -1,6 +1,6 @@
-/******************************************************************************
+/*
  *
- *  Copyright 2022 NXP
+ *  Copyright (C) 2022,2023 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- ******************************************************************************/
+ */
 
 package com.nxp.emvco;
 
 import com.nxp.emvco.EmvcoEvent;
 import com.nxp.emvco.EmvcoStatus;
-
-interface IEMVCoHalClientCallback {
-  
-    oneway void sendData(in byte[] data);
-    oneway void sendEvent(in EmvcoEvent event, in EmvcoStatus status);
+public interface IEMVCoClientCallback {
+  void sendData(byte[] data);
+  void sendEvent(EmvcoEvent event, EmvcoStatus status);
 }
