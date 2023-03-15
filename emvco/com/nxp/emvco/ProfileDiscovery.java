@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2022,2023 NXP
+ *  Copyright (C) 2022-2023 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -169,6 +169,53 @@ public final class ProfileDiscovery {
     }
   }
 
+  @RequiresPermission(android.Manifest.permission.NFC)
+  public void setByteConfig(int type, int length, byte value) {
+    if (getEmvcoHalService() != null) {
+      try {
+        Log.i(TAG, "setByteConfig mode with type:" + type + " value:" + value +
+                       "length:" + length);
+        mIEmvcoProfileDiscovery.setByteConfig(type, length, value);
+      } catch (RemoteException e) {
+        e.printStackTrace();
+      }
+    } else {
+      Log.d(TAG, "Please check if HAL service is up"
+                     + " and retry after some time");
+    }
+  }
+
+  @RequiresPermission(android.Manifest.permission.NFC)
+  public void setByteArrayConfig(int type, int length, byte[] value) {
+    if (getEmvcoHalService() != null) {
+      try {
+        Log.i(TAG, "setByteArrayConfig mode with type:" + type +
+                       " value:" + value + "length:" + length);
+        mIEmvcoProfileDiscovery.setByteArrayConfig(type, length, value);
+      } catch (RemoteException e) {
+        e.printStackTrace();
+      }
+    } else {
+      Log.d(TAG, "Please check if HAL service is up"
+                     + " and retry after some time");
+    }
+  }
+
+  @RequiresPermission(android.Manifest.permission.NFC)
+  public void setStringConfig(int type, int length, String value) {
+    if (getEmvcoHalService() != null) {
+      try {
+        Log.i(TAG, "setStringConfig mode with type:" + type +
+                       " value:" + value + "length:" + length);
+        mIEmvcoProfileDiscovery.setStringConfig(type, length, value);
+      } catch (RemoteException e) {
+        e.printStackTrace();
+      }
+    } else {
+      Log.d(TAG, "Please check if HAL service is up"
+                     + " and retry after some time");
+    }
+  }
   @RequiresPermission(android.Manifest.permission.NFC)
   public int getCurrentDiscoveryMode() {
     int status = DiscoveryMode.UN_KNOWN;
