@@ -19,23 +19,20 @@
  */
 
 package com.nxp.nfc;
-import java.util.HashMap;
-import java.util.Map;
 import android.annotation.RequiresPermission;
 import android.nfc.INfcAdapter;
 import android.nfc.NfcAdapter;
 import android.os.IBinder;
-import android.os.ServiceManager;
-
 import android.os.RemoteException;
-import android.annotation.RequiresPermission;
 import android.os.ServiceManager;
 import android.util.Log;
 import com.nxp.nfc.NfcTDAInfo;
+import com.nxp.nfc.PowerResult;
 import com.nxp.nfc.TdaResult;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 public final class NxpNfcAdapter {
   private static final String TAG = "NXPNFC";
   // Guarded by NfcAdapter.class
@@ -199,6 +196,28 @@ public final class NxpNfcAdapter {
     public byte[] doReadT4tData(byte[] fileId) {
       try {
         return sNxpService.doReadT4tData(fileId);
+      } catch (RemoteException e) {
+        e.printStackTrace();
+        attemptDeadServiceRecovery(e);
+        return null;
+      }
+    }
+
+    /**
+     * This API sets the new power configuration to controller
+     * @param pwrConfig :    power configuration array with two bytes
+     *                       First byte indicates the value length
+     *                       Second byte indicates the actual value
+     * @return PowerResult :-Returns SUCCESS, if power configuration set to
+     *     controller successfully
+     *                       Returns FAILURE, if power configuration set to
+     * controller fails Returns null on remote exception <p>Requires {@link
+     * android.Manifest.permission#NFC} permission.
+     */
+    @RequiresPermission(android.Manifest.permission.NFC)
+    public PowerResult setPowerConfig(byte[] pwrConfig) {
+      try {
+        return sNxpService.setPowerConfig(pwrConfig);
       } catch (RemoteException e) {
         e.printStackTrace();
         attemptDeadServiceRecovery(e);

@@ -1,5 +1,5 @@
  /*
-  * Copyright 2015-2021,2023 NXP
+  * Copyright 2023 NXP
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -13,15 +13,7 @@
   * See the License for the specific language governing permissions and
   * limitations under the License.
   */
+
 package com.nxp.nfc;
 
-import com.nxp.nfc.PowerResult;
-/**
- * @hide
- */
-interface INxpNfcAdapter
-{
-    int doWriteT4tData(in byte[] fileId, in byte[] data, int length);
-    byte[] doReadT4tData(in byte[] fileId);
-    PowerResult setPowerConfig(in byte[] config);
-}
+parcelable PowerResult;
