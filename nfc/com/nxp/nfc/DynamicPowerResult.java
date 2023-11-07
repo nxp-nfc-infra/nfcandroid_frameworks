@@ -19,10 +19,11 @@ package com.nxp.nfc;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class PowerResult implements Parcelable {
+public class DynamicPowerResult implements Parcelable {
   public enum Result implements Parcelable {
-    FAILURE,
-    SUCCESS;
+    SUCCESS,
+    VALUE_ALREADY_EXISTS,
+    FAILURE;
 
     @Override
     public int describeContents() {
@@ -50,26 +51,26 @@ public class PowerResult implements Parcelable {
 
   private Result mResult;
 
-  public PowerResult() {}
+  public DynamicPowerResult() {}
 
-  public PowerResult(Result result) { mResult = result; }
+  public DynamicPowerResult(Result result) { mResult = result; }
 
   public Result getResult() { return mResult; }
 
   public void setResult(Result result) { mResult = result; }
 
-  protected PowerResult(Parcel in) { mResult = Result.values()[in.readInt()]; }
+  protected DynamicPowerResult(Parcel in) { mResult = Result.values()[in.readInt()]; }
 
-  public static final Creator<PowerResult> CREATOR =
-      new Creator<PowerResult>() {
+  public static final Creator<DynamicPowerResult> CREATOR =
+      new Creator<DynamicPowerResult>() {
         @Override
-        public PowerResult createFromParcel(Parcel in) {
-          return new PowerResult(in);
+        public DynamicPowerResult createFromParcel(Parcel in) {
+          return new DynamicPowerResult(in);
         }
 
         @Override
-        public PowerResult[] newArray(int size) {
-          return new PowerResult[size];
+        public DynamicPowerResult[] newArray(int size) {
+          return new DynamicPowerResult[size];
         }
       };
 

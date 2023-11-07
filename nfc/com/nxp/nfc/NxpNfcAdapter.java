@@ -27,7 +27,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
 import com.nxp.nfc.NfcTDAInfo;
-import com.nxp.nfc.PowerResult;
+import com.nxp.nfc.DynamicPowerResult;
 import com.nxp.nfc.TdaResult;
 import java.util.HashMap;
 import java.util.List;
@@ -204,20 +204,27 @@ public final class NxpNfcAdapter {
     }
 
     /**
-     * This API sets the new power configuration to controller
+     * This API sets the new power configuration to controller dynamically by
+	 * following below sequence.
+     * 1. Sends RF deactivate command
+	 * 2. Sets the new power configuration
+	 * 3. Sends RF discover command
+	 *
      * @param pwrConfig :    power configuration array with two bytes
      *                       First byte indicates the value length
      *                       Second byte indicates the actual value
-     * @return PowerResult :-Returns SUCCESS, if power configuration set to
-     *     controller successfully
+     * @return DynamicPowerResult :-Returns SUCCESS, if power configuration set to
+     *                       controller successfully.
+     *                       Returns VALUE_ALREADY_EXISTS, if given power
+     *                       configuration already exist in controller.
      *                       Returns FAILURE, if power configuration set to
-     * controller fails Returns null on remote exception <p>Requires {@link
-     * android.Manifest.permission#NFC} permission.
+     *                       controller fails. Returns null on remote exception.
+     * <p>Requires {@link    android.Manifest.permission#NFC} permission.
      */
     @RequiresPermission(android.Manifest.permission.NFC)
-    public PowerResult setPowerConfig(byte[] pwrConfig) {
+    public DynamicPowerResult setDynamicPowerConfig(byte[] pwrConfig) {
       try {
-        return sNxpService.setPowerConfig(pwrConfig);
+        return sNxpService.setDynamicPowerConfig(pwrConfig);
       } catch (RemoteException e) {
         e.printStackTrace();
         attemptDeadServiceRecovery(e);

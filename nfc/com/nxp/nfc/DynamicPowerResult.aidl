@@ -16,4 +16,4 @@
 
 package com.nxp.nfc;
 
-parcelable PowerResult;
+parcelable DynamicPowerResult;

@@ -15,7 +15,7 @@
   */
 package com.nxp.nfc;
 
-import com.nxp.nfc.PowerResult;
+import com.nxp.nfc.DynamicPowerResult;
 /**
  * @hide
  */
@@ -23,5 +23,5 @@ interface INxpNfcAdapter
 {
     int doWriteT4tData(in byte[] fileId, in byte[] data, int length);
     byte[] doReadT4tData(in byte[] fileId);
-    PowerResult setPowerConfig(in byte[] config);
+    DynamicPowerResult setDynamicPowerConfig(in byte[] config);
 }
