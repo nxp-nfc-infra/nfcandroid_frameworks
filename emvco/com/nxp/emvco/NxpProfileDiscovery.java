@@ -1,6 +1,6 @@
-/******************************************************************************
+/*
  *
- * Copyright (C) 2022-2023 NXP
+ *  Copyright (C) 2022-2023 NXP
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -17,71 +17,72 @@
  * specific prior written permission.
  *
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
- ******************************************************************************/
+ */
 package com.nxp.emvco;
 
 import android.annotation.RequiresPermission;
 import android.content.Context;
-import android.hardware.emvco.DiscoveryMode;
-import android.hardware.emvco.IEmvco;
-import android.hardware.emvco.IEmvcoClientCallback;
-import android.hardware.emvco.IEmvcoProfileDiscovery;
-import android.hardware.emvco.INfcStateChangeRequestCallback;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
-import com.nxp.emvco.EmvcoEvent;
-import com.nxp.emvco.EmvcoStatus;
-import com.nxp.emvco.IEMVCoClientCallback;
+import com.nxp.emvco.INxpEMVCoClientCallback;
+import com.nxp.emvco.NxpEmvcoEvent;
+import com.nxp.emvco.NxpEmvcoStatus;
+import vendor.nxp.emvco.INxpEmvco;
+import vendor.nxp.emvco.INxpEmvcoClientCallback;
+import vendor.nxp.emvco.INxpEmvcoProfileDiscovery;
+import vendor.nxp.emvco.INxpNfcStateChangeRequestCallback;
+import vendor.nxp.emvco.NxpDiscoveryMode;
 
-public final class ProfileDiscovery {
-  private static final String TAG = ProfileDiscovery.class.getName();
+public final class NxpProfileDiscovery {
+  private static final String TAG = NxpProfileDiscovery.class.getName();
   private static final int INIT_EMVCO_DELAY_MS = 200;
   private static final int MAX_RETRY_COUNT = 5;
   private static int retryCount = 0;
   private Context mContext;
-  private IEMVCoClientCallback mEMVCoAppClientCallback = null;
+  private INxpEMVCoClientCallback mEMVCoAppClientCallback = null;
   private static final int TASK_ENABLE_EMVCO_POLL = 1;
   private ProfileDiscoveryHandler mHandler;
-  private static ProfileDiscovery mProfileDiscovery;
-  private IEmvco mIEmvco;
-  private IEmvcoProfileDiscovery mIEmvcoProfileDiscovery = null;
+  private static NxpProfileDiscovery mProfileDiscovery;
+  private INxpEmvco mINxpEmvco;
+  private INxpEmvcoProfileDiscovery mINxpEmvcoProfileDiscovery = null;
   private final EMVCoHalServiceDiedRecipient mEMVCoHalServiceDiedRecipient =
       new EMVCoHalServiceDiedRecipient();
   private com.nxp.emvco
-      .INfcStateChangeRequestCallback nfcStateChangeRequestCallback;
+      .INxpNfcStateChangeRequestCallback nfcStateChangeRequestCallback;
 
-  private ProfileDiscovery(Context context) {
-    Log.e(TAG, "ProfileDiscovery");
+  private NxpProfileDiscovery(Context context) {
+    Log.e(TAG, "NxpProfileDiscovery");
     mContext = context;
     mHandler = new ProfileDiscoveryHandler();
-    Log.i(TAG, "RegisterEMVCoEventListener ");
-    mIEmvcoProfileDiscovery = getEmvcoHalService();
+    Log.i(TAG, "registerEmvcoEventListener ");
+    mINxpEmvcoProfileDiscovery = getEmvcoHalService();
   }
 
-  public static synchronized ProfileDiscovery getInstance(Context context) {
+  public static synchronized NxpProfileDiscovery getInstance(Context context) {
     if (mProfileDiscovery == null) {
-      mProfileDiscovery = new ProfileDiscovery(context);
+      mProfileDiscovery = new NxpProfileDiscovery(context);
     }
     return mProfileDiscovery;
   }
 
-  private INfcStateChangeRequestCallback.Stub mNfcStateChangeCallback =
-      new INfcStateChangeRequestCallback.Stub() {
+  private INxpNfcStateChangeRequestCallback.Stub mNfcStateChangeCallback =
+      new INxpNfcStateChangeRequestCallback.Stub() {
         @Override
         public void enableNfc(boolean turnOn) {
           Log.i(TAG, "setNfcState turnOn:" + turnOn);
@@ -107,12 +108,13 @@ public final class ProfileDiscovery {
     @Override
     public void binderDied() {
       Log.e(TAG, "EMVCoHalServiceDiedRecipient binderDied");
-      mIEmvco.asBinder().unlinkToDeath(mEMVCoHalServiceDiedRecipient, 0);
-      mIEmvco = null;
-      mIEmvcoProfileDiscovery = null;
+      mINxpEmvco.asBinder().unlinkToDeath(mEMVCoHalServiceDiedRecipient, 0);
+      mINxpEmvco = null;
+      mINxpEmvcoProfileDiscovery = null;
       if (mEMVCoAppClientCallback != null) {
-        mEMVCoAppClientCallback.sendEvent(EmvcoEvent.EMVCO_CLOSE_CHNL_CPLT_EVT,
-                                          EmvcoStatus.EMVCO_STATUS_OK);
+        mEMVCoAppClientCallback.sendEvent(
+            NxpEmvcoEvent.EMVCO_CLOSE_CHNL_CPLT_EVT,
+            NxpEmvcoStatus.EMVCO_STATUS_OK);
       } else {
         Log.i(TAG, "sendEvent is NULL");
       }
@@ -126,7 +128,7 @@ public final class ProfileDiscovery {
     Log.i(TAG, "onNfcStateChange newState:" + newState);
     if (getEmvcoHalService() != null) {
       try {
-        mIEmvcoProfileDiscovery.onNfcStateChange(newState);
+        mINxpEmvcoProfileDiscovery.onNfcStateChange(newState);
       } catch (RemoteException e) {
         Log.e(TAG, "Failed to get EMVCo service " + e);
       }
@@ -136,8 +138,8 @@ public final class ProfileDiscovery {
     }
   }
 
-  private IEmvcoClientCallback.Stub mEmvcoHalCallback =
-      new IEmvcoClientCallback.Stub() {
+  private INxpEmvcoClientCallback.Stub mEmvcoHalCallback =
+      new INxpEmvcoClientCallback.Stub() {
         @Override
         public void sendData(byte[] data) {
           if (mEMVCoAppClientCallback != null) {
@@ -149,8 +151,8 @@ public final class ProfileDiscovery {
         @Override
         public void sendEvent(int event, int status) {
           if (mEMVCoAppClientCallback != null) {
-            mEMVCoAppClientCallback.sendEvent(EmvcoEvent.valueOf(event),
-                                              EmvcoStatus.valueOf(status));
+            mEMVCoAppClientCallback.sendEvent(NxpEmvcoEvent.valueOf(event),
+                                              NxpEmvcoStatus.valueOf(status));
           } else {
             Log.d(TAG, "sendEvent is NULL");
           }
@@ -172,8 +174,8 @@ public final class ProfileDiscovery {
       try {
         Log.i(TAG, "setEMVCoMode mode with technologyToPool:" +
                        technologyToPool + " isStartEMVCo:" + isStartEMVCo);
-        mIEmvcoProfileDiscovery.setEMVCoMode((byte)technologyToPool,
-                                             isStartEMVCo);
+        mINxpEmvcoProfileDiscovery.setEMVCoMode((byte)technologyToPool,
+                                                isStartEMVCo);
       } catch (RemoteException e) {
         e.printStackTrace();
       }
@@ -189,7 +191,7 @@ public final class ProfileDiscovery {
       try {
         Log.i(TAG, "setByteConfig mode with type:" + type + " value:" + value +
                        "length:" + length);
-        mIEmvcoProfileDiscovery.setByteConfig(type, length, value);
+        mINxpEmvcoProfileDiscovery.setByteConfig(type, length, value);
       } catch (RemoteException e) {
         e.printStackTrace();
       }
@@ -199,43 +201,12 @@ public final class ProfileDiscovery {
     }
   }
 
-  @RequiresPermission(android.Manifest.permission.NFC)
-  public void setByteArrayConfig(int type, int length, byte[] value) {
-    if (getEmvcoHalService() != null) {
-      try {
-        Log.i(TAG, "setByteArrayConfig mode with type:" + type +
-                       " value:" + value + "length:" + length);
-        mIEmvcoProfileDiscovery.setByteArrayConfig(type, length, value);
-      } catch (RemoteException e) {
-        e.printStackTrace();
-      }
-    } else {
-      Log.d(TAG, "Please check if HAL service is up"
-                     + " and retry after some time");
-    }
-  }
-
-  @RequiresPermission(android.Manifest.permission.NFC)
-  public void setStringConfig(int type, int length, String value) {
-    if (getEmvcoHalService() != null) {
-      try {
-        Log.i(TAG, "setStringConfig mode with type:" + type +
-                       " value:" + value + "length:" + length);
-        mIEmvcoProfileDiscovery.setStringConfig(type, length, value);
-      } catch (RemoteException e) {
-        e.printStackTrace();
-      }
-    } else {
-      Log.d(TAG, "Please check if HAL service is up"
-                     + " and retry after some time");
-    }
-  }
   @RequiresPermission(android.Manifest.permission.NFC)
   public int getCurrentDiscoveryMode() {
-    int status = DiscoveryMode.UN_KNOWN;
+    int status = NxpDiscoveryMode.UN_KNOWN;
     if (getEmvcoHalService() != null) {
       try {
-        status = mIEmvcoProfileDiscovery.getCurrentDiscoveryMode();
+        status = mINxpEmvcoProfileDiscovery.getCurrentDiscoveryMode();
         Log.i(TAG, "getCurrentDiscoveryMode:" + status);
       } catch (RemoteException e) {
         e.printStackTrace();
@@ -249,7 +220,7 @@ public final class ProfileDiscovery {
   }
 
   @RequiresPermission(android.Manifest.permission.NFC)
-  public void registerEventListener(IEMVCoClientCallback mEMVCoCallback)
+  public void registerEventListener(INxpEMVCoClientCallback mEMVCoCallback)
       throws SecurityException {
     final int uid = android.os.Process.myUid();
     if (uid == android.os.Process.NFC_UID) {
@@ -259,7 +230,8 @@ public final class ProfileDiscovery {
     if (getEmvcoHalService() != null && mEMVCoCallback != null) {
       mEMVCoAppClientCallback = mEMVCoCallback;
       try {
-        mIEmvcoProfileDiscovery.registerEMVCoEventListener(mEmvcoHalCallback);
+        mINxpEmvcoProfileDiscovery.registerEMVCoEventListener(
+            mEmvcoHalCallback);
       } catch (RemoteException e) {
         Log.e(TAG, "Failed to get EMVCo service " + e);
       }
@@ -272,8 +244,8 @@ public final class ProfileDiscovery {
 
   @RequiresPermission(android.Manifest.permission.NFC)
   public void
-  registerNFCStateChangeCallback(com.nxp.emvco.INfcStateChangeRequestCallback
-                                     iNfcStateChangeRequestCallback)
+  registerNFCStateChangeCallback(com.nxp.emvco.INxpNfcStateChangeRequestCallback
+                                     INxpNfcStateChangeRequestCallback)
       throws SecurityException {
     Log.i(TAG, "registerNFCStateChangeCallback");
     final int uid = android.os.Process.myUid();
@@ -283,11 +255,12 @@ public final class ProfileDiscovery {
     }
 
     if (getEmvcoHalService() != null &&
-        iNfcStateChangeRequestCallback != null) {
+        INxpNfcStateChangeRequestCallback != null) {
       try {
-        nfcStateChangeRequestCallback = iNfcStateChangeRequestCallback;
-        boolean status = mIEmvcoProfileDiscovery.registerNFCStateChangeCallback(
-            mNfcStateChangeCallback);
+        nfcStateChangeRequestCallback = INxpNfcStateChangeRequestCallback;
+        boolean status =
+            mINxpEmvcoProfileDiscovery.registerNFCStateChangeCallback(
+                mNfcStateChangeCallback);
         Log.d(TAG, "Register NfcStateChangeCallback status:" + status);
       } catch (RemoteException e) {
         Log.e(TAG, "Failed to get EMVCo service " + e);
@@ -295,23 +268,24 @@ public final class ProfileDiscovery {
     } else {
       Log.d(
           TAG,
-          "App has not registered callback. Either EMVCO service not available or INfcStateChangeRequestCallback callback is NULL");
+          "App has not registered callback. Either EMVCO service not available or INxpNfcStateChangeRequestCallback callback is NULL");
     }
   }
 
   /** get handle to EMVCo HAL service interface */
-  private IEmvcoProfileDiscovery getEmvcoHalService() {
+  private INxpEmvcoProfileDiscovery getEmvcoHalService() {
     /* get a handle to EMVCo service */
-    if (mIEmvcoProfileDiscovery != null) {
-      return mIEmvcoProfileDiscovery;
+    if (mINxpEmvcoProfileDiscovery != null) {
+      return mINxpEmvcoProfileDiscovery;
     }
     IBinder service =
-        ServiceManager.getService("android.hardware.emvco.IEmvco/default");
+        ServiceManager.getService("vendor.nxp.emvco.INxpEmvco/default");
     if (service != null) {
       try {
         service.linkToDeath(mEMVCoHalServiceDiedRecipient, 0);
-        mIEmvco = IEmvco.Stub.asInterface(service);
-        mIEmvcoProfileDiscovery = mIEmvco.getEmvcoProfileDiscoveryInterface();
+        mINxpEmvco = INxpEmvco.Stub.asInterface(service);
+        mINxpEmvcoProfileDiscovery =
+            mINxpEmvco.getEmvcoProfileDiscoveryInterface();
       } catch (RemoteException e) {
         Log.d(TAG, "Unable to register death recipient");
       }
@@ -319,7 +293,7 @@ public final class ProfileDiscovery {
     } else {
       Log.d(TAG, "Unable to acquire EMVCo HAL service");
     }
-    return mIEmvcoProfileDiscovery;
+    return mINxpEmvcoProfileDiscovery;
   }
 
   final class ProfileDiscoveryHandler extends Handler {
@@ -328,17 +302,18 @@ public final class ProfileDiscovery {
       switch (msg.what) {
       case TASK_ENABLE_EMVCO_POLL: {
         Log.i(TAG, "TASK_ENABLE_EMVCO_POLL received");
-        mIEmvcoProfileDiscovery = getEmvcoHalService();
-        if (mIEmvcoProfileDiscovery != null) {
+        mINxpEmvcoProfileDiscovery = getEmvcoHalService();
+        if (mINxpEmvcoProfileDiscovery != null) {
           try {
             final int uid = android.os.Process.myUid();
             boolean status = false;
             if (uid == android.os.Process.NFC_UID) {
-              status = mIEmvcoProfileDiscovery.registerNFCStateChangeCallback(
-                  mNfcStateChangeCallback);
+              status =
+                  mINxpEmvcoProfileDiscovery.registerNFCStateChangeCallback(
+                      mNfcStateChangeCallback);
               Log.d(TAG, "Register NfcStateChangeCallback status:" + status);
             } else {
-              status = mIEmvcoProfileDiscovery.registerEMVCoEventListener(
+              status = mINxpEmvcoProfileDiscovery.registerEMVCoEventListener(
                   mEmvcoHalCallback);
               Log.d(TAG,
                     "Register registerEMVCoEventListener status:" + status);
