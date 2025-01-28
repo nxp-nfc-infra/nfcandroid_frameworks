@@ -18,6 +18,11 @@ java_library {
     srcs: [
         "com/**/I*.aidl",
         "com/**/*.java",
+	"android/**/*.java",
     ],
+    libs: [
+	"framework-nfc.impl",
+	"unsupportedappusage"
+    ]
 
 }
