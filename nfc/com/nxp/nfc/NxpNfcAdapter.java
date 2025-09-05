@@ -2,7 +2,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2013-2021,2023 NXP
+ *  Copyright 2013-2021,2023, 2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ package com.nxp.nfc;
 import android.annotation.RequiresPermission;
 import android.nfc.INfcAdapter;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcFrameworkInitializer;
+import android.nfc.NfcServiceManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -50,9 +52,12 @@ public final class NxpNfcAdapter {
     // recovery
   private static INxpNfcAdapter sNxpService;
   private static INfcAdapter sService;
+  static NfcServiceManager.ServiceRegisterer sServiceRegisterer;
   private static INxpNfcTDA sNxpTdaService;
 
-  private NxpNfcAdapter() {}
+  private NxpNfcAdapter() {
+
+  }
   /**
    * Returns the NxpNfcAdapter for application context,
    * or throws if NFC is not available.
@@ -75,11 +80,12 @@ public final class NxpNfcAdapter {
         Log.e(TAG, "could not retrieve NXP NFC TDA service");
         throw new UnsupportedOperationException();
       }
-      sNxpService = getNxpNfcAdapterInterface();
+      /*to be clean as part T4T change*/
+ /*      sNxpService = getNxpNfcAdapterInterface();
       if (sNxpService == null) {
         Log.e(TAG, "could not retrieve NXP NFC service");
         throw new UnsupportedOperationException();
-      }
+      } */
       sIsInitialized = true;
     }
     NxpNfcAdapter nxpAdapter = sNfcAdapters.get(adapter);
@@ -90,15 +96,37 @@ public final class NxpNfcAdapter {
     return nxpAdapter;
   }
 
+  private static void retrieveServiceRegisterer() {
+        if (sServiceRegisterer == null) {
+            NfcServiceManager manager = NfcFrameworkInitializer.getNfcServiceManager();
+            if (manager == null) {
+                Log.e(TAG, "NfcServiceManager is null");
+                throw new UnsupportedOperationException();
+            }
+            sServiceRegisterer = manager.getNfcManagerServiceRegisterer();
+        }
+    }
+
   /** get handle to NFC service interface */
   private static INfcAdapter getServiceInterface() {
+      /* get a handle to NFC service */
+    retrieveServiceRegisterer();
+      IBinder b = sServiceRegisterer.get();
+      if (b == null) {
+          return null;
+      }
+      return INfcAdapter.Stub.asInterface(b);
+  }
+
+  /** get handle to NFC service interface */
+ /*  private static INfcAdapter getServiceInterface() {
     /* get a handle to NFC service */
-    IBinder b = ServiceManager.getService("nfc");
+    /*IBinder b = ServiceManager.getService("nfc");
     if (b == null) {
       return null;
     }
     return INfcAdapter.Stub.asInterface(b);
-  }
+  }*/
 
   /**
    * NFC service dead - attempt best effort recovery
@@ -114,13 +142,13 @@ public final class NxpNfcAdapter {
 
     sService = service;
     sNxpTdaService = getNxpNfcTdaAdapterInterface();
-    sNxpService = getNxpNfcAdapterInterface();
+   // sNxpService = getNxpNfcAdapterInterface();
     return;
   }
    /**
      * @hide
      */
-    public static INxpNfcAdapter getNxpNfcAdapterInterface() {
+ /*    public static INxpNfcAdapter getNxpNfcAdapterInterface() {
       if (sService == null) {
         throw new UnsupportedOperationException(
             "You need a reference from NfcAdapter to use the "
@@ -135,7 +163,7 @@ public final class NxpNfcAdapter {
       } catch (RemoteException e) {
         return null;
       }
-    }
+    }*/
   /**
    * @hide
    */

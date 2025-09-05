@@ -2,7 +2,7 @@
 *
 *  The original Work has been changed by NXP.
 *
-*  Copyright 2013-2020,2023 NXP
+*  Copyright 2013-2020,2023, 2025 NXP
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -32,6 +32,10 @@ public final class NfcConstants {
    * UICC ID to be able to select it as the default Secure Element
    */
   public static final String UICC_ID = "com.nxp.uicc.ID";
+
+  // @SdkConstant(SdkConstantType.BROADCAST_INTENT_ACTION)
+  public static final String ACTION_NFC_STATE_CHANGED = "android.nfc.action.NFC_STATE_CHANGED";
+
 
   /**
    *@hide

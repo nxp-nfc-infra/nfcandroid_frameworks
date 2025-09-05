@@ -18,11 +18,31 @@ java_library {
     srcs: [
         "com/**/I*.aidl",
         "com/**/*.java",
-	"android/**/*.java",
+    ],
+    visibility: [
+        "//frameworks/base:__subpackages__",
+        "//packages/modules/Nfc:__subpackages__",
+        "//packages/apps:__subpackages__",
     ],
     libs: [
 	"framework-nfc.impl",
-	"unsupportedappusage"
-    ]
+	"unsupportedappusage",
+        "framework-annotations-lib",
+    ],
+        optimize: {
+        enabled: false,
+    },
+    hostdex: true, // for hiddenapi check
+    min_sdk_version: "36",
+    sdk_version: "module_current",
+    permitted_packages: [
+        "android.nfc",
+        "com.android.nfc",
+        "com.nxp.nfc",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.nfcservices",
+    ],
 
 }
