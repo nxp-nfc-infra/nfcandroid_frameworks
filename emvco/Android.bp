@@ -10,6 +10,33 @@ java_library {
         "com/**/I*.aidl",
         "com/**/*.java",
     ],
+    visibility: [
+        "//frameworks/base:__subpackages__",
+        "//packages/modules/Nfc:__subpackages__",
+        "//packages/apps:__subpackages__",
+    ],
+    libs: [
+        "framework-nfc.impl",
+        "unsupportedappusage",
+        "framework-annotations-lib",
+    ],
+        optimize: {
+        enabled: false,
+    },
+    hostdex: true, // for hiddenapi check
+    sdk_version: "module_current",
+    java_version: "17",
+    //sdk_version:"core_platform",
+    permitted_packages: [
+        "android.nfc",
+        "com.android.nfc",
+        "com.nxp.emvco",
+        "vendor.nxp.emvco",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.nfcservices",
+    ],
 }
 prebuilt_etc {
     name: "com.nxp.emvco.xml",

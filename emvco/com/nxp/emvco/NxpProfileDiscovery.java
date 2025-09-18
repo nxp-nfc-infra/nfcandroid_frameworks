@@ -40,9 +40,15 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import com.nxp.emvco.INxpEMVCoClientCallback;
 import com.nxp.emvco.NxpEmvcoEvent;
 import com.nxp.emvco.NxpEmvcoStatus;
+import com.nxp.emvco.NxpProfileDiscovery.ProfileDiscoveryHandler;
+
 import vendor.nxp.emvco.INxpEmvco;
 import vendor.nxp.emvco.INxpEmvcoClientCallback;
 import vendor.nxp.emvco.INxpEmvcoProfileDiscovery;
@@ -278,20 +284,33 @@ public final class NxpProfileDiscovery {
     if (mINxpEmvcoProfileDiscovery != null) {
       return mINxpEmvcoProfileDiscovery;
     }
-    IBinder service =
-        ServiceManager.getService("vendor.nxp.emvco.INxpEmvco/default");
-    if (service != null) {
-      try {
-        service.linkToDeath(mEMVCoHalServiceDiedRecipient, 0);
-        mINxpEmvco = INxpEmvco.Stub.asInterface(service);
-        mINxpEmvcoProfileDiscovery =
-            mINxpEmvco.getEmvcoProfileDiscoveryInterface();
-      } catch (RemoteException e) {
-        Log.d(TAG, "Unable to register death recipient");
-      }
+    try {
+    // Load the ServiceManager class
+    Class<?> serviceManagerClass = Class.forName("android.os.ServiceManager");
+    // Get the getService method that takes a String parameter
+    Method getServiceMethod = serviceManagerClass.getDeclaredMethod("getService", String.class);
+    // Make the method accessible if it's not public
+    getServiceMethod.setAccessible(true);
+    // Define the service name
+    String serviceName = "vendor.nxp.emvco.INxpEmvco/default";
+    // Invoke the method with the service name
+    IBinder service = (IBinder) getServiceMethod.invoke(null, serviceName);
+      if (service != null) {
+        try {
+          service.linkToDeath(mEMVCoHalServiceDiedRecipient, 0);
+          mINxpEmvco = INxpEmvco.Stub.asInterface(service);
+          mINxpEmvcoProfileDiscovery =
+              mINxpEmvco.getEmvcoProfileDiscoveryInterface();
+        } catch (RemoteException e) {
+          Log.d(TAG, "Unable to register death recipient");
+        }
 
-    } else {
-      Log.d(TAG, "Unable to acquire EMVCo HAL service");
+      } else {
+        Log.d(TAG, "Unable to acquire EMVCo HAL service");
+      }
+    }
+    catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        e.printStackTrace(); // or handle the error appropriately
     }
     return mINxpEmvcoProfileDiscovery;
   }
