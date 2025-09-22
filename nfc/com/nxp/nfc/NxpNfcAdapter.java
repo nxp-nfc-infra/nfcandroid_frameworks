@@ -80,12 +80,12 @@ public final class NxpNfcAdapter {
         Log.e(TAG, "could not retrieve NXP NFC TDA service");
         throw new UnsupportedOperationException();
       }
-      /*to be clean as part T4T change*/
- /*      sNxpService = getNxpNfcAdapterInterface();
+
+      sNxpService = getNxpNfcAdapterInterface();
       if (sNxpService == null) {
         Log.e(TAG, "could not retrieve NXP NFC service");
         throw new UnsupportedOperationException();
-      } */
+      }
       sIsInitialized = true;
     }
     NxpNfcAdapter nxpAdapter = sNfcAdapters.get(adapter);
@@ -118,16 +118,6 @@ public final class NxpNfcAdapter {
       return INfcAdapter.Stub.asInterface(b);
   }
 
-  /** get handle to NFC service interface */
- /*  private static INfcAdapter getServiceInterface() {
-    /* get a handle to NFC service */
-    /*IBinder b = ServiceManager.getService("nfc");
-    if (b == null) {
-      return null;
-    }
-    return INfcAdapter.Stub.asInterface(b);
-  }*/
-
   /**
    * NFC service dead - attempt best effort recovery
    * @hide
@@ -142,13 +132,13 @@ public final class NxpNfcAdapter {
 
     sService = service;
     sNxpTdaService = getNxpNfcTdaAdapterInterface();
-   // sNxpService = getNxpNfcAdapterInterface();
+    sNxpService = getNxpNfcAdapterInterface();
     return;
   }
    /**
      * @hide
      */
- /*    public static INxpNfcAdapter getNxpNfcAdapterInterface() {
+     public static INxpNfcAdapter getNxpNfcAdapterInterface() {
       if (sService == null) {
         throw new UnsupportedOperationException(
             "You need a reference from NfcAdapter to use the "
@@ -163,7 +153,7 @@ public final class NxpNfcAdapter {
       } catch (RemoteException e) {
         return null;
       }
-    }*/
+    }
   /**
    * @hide
    */
@@ -183,53 +173,7 @@ public final class NxpNfcAdapter {
       return null;
     }
   }
-   /**
-     * This API performs writes of T4T data to Nfcee.
-     * @param fileId File Id to which to write
-     * @param data data bytes to be written
-     * @param length current data length
-     * @return number of bytes written if success else negative number of
-                error code listed as here .
-                -1  STATUS_FAILED
-                -2  ERROR_RF_ACTIVATED
-                -3  ERROR_MPOS_ON
-                -4  ERROR_NFC_NOT_ON
-                -5  ERROR_INVALID_FILE_ID
-                -6  ERROR_INVALID_LENGTH
-                -7  ERROR_CONNECTION_FAILED
-                -8  ERROR_EMPTY_PAYLOAD
-                -9  ERROR_NDEF_VALIDATION_FAILED
-     * <p>Requires {@link   android.Manifest.permission#NFC} permission.
-     */
-    @RequiresPermission(android.Manifest.permission.NFC)
-    public int doWriteT4tData(byte[] fileId, byte[] data, int length) {
-      try {
-        return sNxpService.doWriteT4tData(fileId, data, length);
-      } catch (RemoteException e) {
-        e.printStackTrace();
-        attemptDeadServiceRecovery(e);
-        return -1;
-      }
-    }
 
-    /**
-     * This API performs reading of T4T content of Nfcee.
-     * @param fileId : File Id from which to read
-     * @return read bytes :-Returns read message if success
-     *                      Returns null if failed to read
-     *                      Returns 0xFF if file is empty.
-     * <p>Requires {@link   android.Manifest.permission#NFC} permission.
-     */
-    @RequiresPermission(android.Manifest.permission.NFC)
-    public byte[] doReadT4tData(byte[] fileId) {
-      try {
-        return sNxpService.doReadT4tData(fileId);
-      } catch (RemoteException e) {
-        e.printStackTrace();
-        attemptDeadServiceRecovery(e);
-        return null;
-      }
-    }
 
     /**
      * This API sets the new power configuration to controller dynamically by

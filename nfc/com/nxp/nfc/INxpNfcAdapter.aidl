@@ -21,7 +21,5 @@ import com.nxp.nfc.DynamicPowerResult;
  */
 interface INxpNfcAdapter
 {
-    int doWriteT4tData(in byte[] fileId, in byte[] data, int length);
-    byte[] doReadT4tData(in byte[] fileId);
     DynamicPowerResult setDynamicPowerConfig(in byte[] config);
 }
